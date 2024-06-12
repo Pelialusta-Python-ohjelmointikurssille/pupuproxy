@@ -13,13 +13,14 @@ app.use((req, res, next) => {
 
 app.use(bodyParser.urlencoded({ extended: true }));
 
-app.post('/api/*', (req, res) => {
-	console.log(req.originalUrl);
+// Handle both GET and POST requests
+app.all('/api/*', (req, res) => {
     const apiUrl = 'https://tie.koodariksi.fi' + req.originalUrl; 
-    request.post({
-    	method: req.method,
+    request({
+        method: req.method, // Use the same HTTP method as the incoming request
         url: apiUrl,
-        form: req.body
+        form: req.method === 'POST' ? req.body : undefined, // Include form data for POST requests only
+        qs: req.method === 'GET' ? req.query : undefined // Include query parameters for GET requests only
     }, (error, response, body) => {
         if (error) {
             res.status(500).send(error);
